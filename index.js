@@ -70,27 +70,32 @@ module.exports = function( axon ) {
                    
                     var previous_handler_start = parseInt( query_stats_previous.handlerStart );            
                     var handler_start = parseInt( query_stats.handlerStart );
-                    var old_average_time_per_request = parseFloat( query_stats_previous.avgTimePerRequest );
-                    var new_average_time_per_request = parseFloat( query_stats.avgTimePerRequest );      
                     
-                    //total_time
-                    var t = query_stats._timestamp - previous_handler_start;
-                    //interval_time
-                    var i = query_stats._timestamp - query_stats_previous._timestamp;
-                    //previous_interval_time
-                    var p = query_stats_previous._timestamp - previous_handler_start;
+                    var old_average_time_per_request, new_average_time_per_request;
+                    if ( query_stats_previous.avgTimePerRequest != 'Nan' && query_stats.avgTimePerRequest != 'Nan' ) {
+                        
+                        old_average_time_per_request = parseFloat( query_stats_previous.avgTimePerRequest ); 
+                        new_average_time_per_request = parseFloat( query_stats.avgTimePerRequest );      
                     
-                     //extrapolate 
-                    average_time_per_request = ( new_average_time_per_request * t 
-                                                - old_average_time_per_request * p ) / i ;
-        
-                    //console.log( average_time_per_request );
-                    //console.log( (( average_time_per_request*i) +  (old_average_time_per_request*p)) / t )
-                    //console.log( t );            
-                    //console.log( i );            
-                    //console.log( p );            
-                    //console.log(new_average_time_per_request);
-                    //console.log(old_average_time_per_request);
+                        //total_time
+                        var t = query_stats._timestamp - previous_handler_start;
+                        //interval_time
+                        var i = query_stats._timestamp - query_stats_previous._timestamp;
+                        //previous_interval_time
+                        var p = query_stats_previous._timestamp - previous_handler_start;
+                        
+                         //extrapolate 
+                        average_time_per_request = ( new_average_time_per_request * t 
+                                                    - old_average_time_per_request * p ) / i ;
+            
+                        //console.log( average_time_per_request );
+                        //console.log( (( average_time_per_request*i) +  (old_average_time_per_request*p)) / t )
+                        //console.log( t );            
+                        //console.log( i );            
+                        //console.log( p );            
+                        //console.log(new_average_time_per_request);
+                        //console.log(old_average_time_per_request);
+                    }
                     
                     var new_errors = parseInt( query_stats.errors );
                     var old_errors = parseInt( query_stats_previous.errors );
@@ -99,7 +104,10 @@ module.exports = function( axon ) {
                 }        
                 else { 
                     average_requests_per_second = parseFloat( query_stats.avgRequestsPerSecond );            
-                    average_time_per_request = parseFloat( query_stats.avgTimePerRequest );
+                    
+                    if ( query_stats.avgTimePerRequest !== 'NaN' ) {
+                        average_time_per_request = parseFloat( query_stats.avgTimePerRequest );
+                    }
         
                     var handler_start = parseInt( query_stats.handlerStart );
                     var timestamp = query_stats._timestamp;
@@ -114,8 +122,13 @@ module.exports = function( axon ) {
                 //console.log( average_time_per_request );        
                 //console.log( average_errors_per_second );
                 var nervous_timestamp = Math.round( query_stats._timestamp/1000 ); 
+                
                 axon.emit( 'data', 'average_requests_per_second', average_requests_per_second, nervous_timestamp );
-                axon.emit( 'data', 'average_time_per_request_in_ms', average_time_per_request, nervous_timestamp );
+                
+                if ( average_time_per_request !== undefined ) {
+                    axon.emit( 'data', 'average_time_per_request_in_ms', average_time_per_request, nervous_timestamp ); 
+                }
+                
                 axon.emit( 'data', 'average_errors_per_second', average_errors_per_second, nervous_timestamp );                    
                 
             } catch ( e ) {        
