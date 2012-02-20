@@ -62,39 +62,32 @@ module.exports = function( axon ) {
                     var delta = query_stats._timestamp - query_stats_previous._timestamp;
         
                     //get the average for this interval
-                    var new_requests = parseInt(query_stats.requests);
-                    var old_requests =  parseInt(query_stats_previous.requests);
-                    var requests = new_requests-old_requests;        
-        
-                    average_requests_per_second = (requests / delta ) * 1000;                
+                    var total_requests = parseInt(query_stats.requests);
+                    var previous_requests =  parseInt(query_stats_previous.requests);
+                    var new_requests = total_requests-previous_requests;
+
+                    average_requests_per_second = ( new_requests / delta ) * 1000;                
                    
                     var previous_handler_start = parseInt( query_stats_previous.handlerStart );            
                     var handler_start = parseInt( query_stats.handlerStart );
                     
                     var old_average_time_per_request, new_average_time_per_request;
-                    if ( query_stats_previous.avgTimePerRequest != 'Nan' && query_stats.avgTimePerRequest != 'Nan' ) {
-                        
+                 
+                    if ( new_requests !== 0  && query_stats_previous.avgTimePerRequest != 'Nan' && query_stats.avgTimePerRequest != 'Nan' &&  ) {
+                    
                         old_average_time_per_request = parseFloat( query_stats_previous.avgTimePerRequest ); 
                         new_average_time_per_request = parseFloat( query_stats.avgTimePerRequest );      
                     
-                        //total_time
-                        var t = query_stats._timestamp - previous_handler_start;
-                        //interval_time
-                        var i = query_stats._timestamp - query_stats_previous._timestamp;
-                        //previous_interval_time
-                        var p = query_stats_previous._timestamp - previous_handler_start;
+                        //given the previous average and the current average we can
+                        //calculate how much time was spent during this interval handling
+                        //requests
+                        var total_time_spent_handling_requests_during_interval = 
+                            ( new_average_time_per_request * total_requests ) -
+                                ( old_average_time_per_request * previous_requests )
                         
-                         //extrapolate 
-                        average_time_per_request = ( new_average_time_per_request * t 
-                                                    - old_average_time_per_request * p ) / i ;
-            
-                        //console.log( average_time_per_request );
-                        //console.log( (( average_time_per_request*i) +  (old_average_time_per_request*p)) / t )
-                        //console.log( t );            
-                        //console.log( i );            
-                        //console.log( p );            
-                        //console.log(new_average_time_per_request);
-                        //console.log(old_average_time_per_request);
+                        //we know how many requests occured this interval, divide by it to get the average time per req
+                        
+                        average_time_per_request = total_time_spent_handling_requests_during_interval / new_requests;
                     }
                     
                     var new_errors = parseInt( query_stats.errors );
