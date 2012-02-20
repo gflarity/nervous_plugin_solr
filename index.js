@@ -66,7 +66,7 @@ module.exports = function( axon ) {
                     var old_requests =  parseInt(query_stats_previous.requests);
                     var requests = new_requests-old_requests;        
         
-                    average_requests_per_second = requests / delta * 1000;                
+                    average_requests_per_second = (requests / delta ) * 1000;                
                    
                     var previous_handler_start = parseInt( query_stats_previous.handlerStart );            
                     var handler_start = parseInt( query_stats.handlerStart );
@@ -99,10 +99,13 @@ module.exports = function( axon ) {
                     
                     var new_errors = parseInt( query_stats.errors );
                     var old_errors = parseInt( query_stats_previous.errors );
-                    average_errors_per_second = ( new_errors - old_errors ) / delta * 1000;            
+                    average_errors_per_second = ( ( new_errors - old_errors ) / delta  ) * 1000;            
                     
                 }        
                 else { 
+                    //set the previous stats for next time
+                    query_stats_previous =  query_stats;
+                    
                     average_requests_per_second = parseFloat( query_stats.avgRequestsPerSecond );            
                     
                     if ( query_stats.avgTimePerRequest !== 'NaN' ) {
@@ -113,7 +116,7 @@ module.exports = function( axon ) {
                     var timestamp = query_stats._timestamp;
                     var delta = timestamp - handler_start;
                     var errors = parseInt( query_stats.errors );
-                    average_errors_per_second = errors / delta * 1000;                                    
+                    average_errors_per_second = ( errors / delta ) * 1000;                                    
                 }
           
                 
