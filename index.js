@@ -73,7 +73,7 @@ module.exports = function( axon ) {
                     
                     var old_average_time_per_request, new_average_time_per_request;
                  
-                    if ( new_requests !== 0  && query_stats_previous.avgTimePerRequest != 'Nan' && query_stats.avgTimePerRequest != 'Nan' &&  ) {
+                    if ( new_requests !== 0  && query_stats_previous.avgTimePerRequest != 'Nan' && query_stats.avgTimePerRequest != 'Nan' ) {
                     
                         old_average_time_per_request = parseFloat( query_stats_previous.avgTimePerRequest ); 
                         new_average_time_per_request = parseFloat( query_stats.avgTimePerRequest );      
